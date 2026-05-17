@@ -9,6 +9,25 @@ type Components =
     /// </summary>
     [<ReactComponent>]
     static member HexGrid() =
+        let x = 150
+        let y = 150
+
+        let HexPointsString x y =
+            sprintf
+                "%d,%d %d,%d %d,%d %d,%d %d,%d %d,%d"
+                (x)
+                (y - 100)
+                (x + 70)
+                (y - 60)
+                (x + 70)
+                (y + 20)
+                (x)
+                (y + 60)
+                (x - 70)
+                (y + 20)
+                (x - 70)
+                (y - 60)
+
         Html.div [
             prop.className "flex min-h-screen bg-gray-100"
             prop.children [
@@ -21,7 +40,7 @@ type Components =
                             svg.height 300
                             svg.children [
                                 Svg.polygon [
-                                    svg.points "150,50 220,90 220,170 150,210 80,170 80,90"
+                                    svg.points (HexPointsString x y)
                                     svg.fill "#88c0d0"
                                     svg.stroke "#2e3440"
                                     svg.strokeWidth 3
