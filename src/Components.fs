@@ -14,6 +14,7 @@ type Msg = TileClicked of int
 type State = {
     Tiles: Tile list
     Selected: int option
+    Sums: Tile list
 }
 
 type Components =
@@ -27,9 +28,9 @@ type Components =
 
         let xStride = 15 * s // same row x spacing
         let rowShift = xStride / 2 // x shift for odd rows
-        let xOffset = 15 * s // x offset for the first column
+        let xOffset = 25 * s // x offset for the first column
         let yStride = 13 * s // y spacing between rows
-        let yOffset = 15 * s // y offset for the first row
+        let yOffset = 25 * s // y offset for the first row
 
         let HexRow = fun count x y -> [ for i in 0 .. count - 1 -> (x + i * xStride, y) ]
 
@@ -37,7 +38,7 @@ type Components =
             List.concat [
                 HexRow 3 xOffset yOffset
                 HexRow 4 (xOffset - rowShift) (yOffset + yStride)
-                HexRow 5 (xOffset - 2 * rowShift) (yOffset + 2 * yStride)
+                HexRow 5 (xOffset - xStride) (yOffset + 2 * yStride)
                 HexRow 4 (xOffset - rowShift) (yOffset + 3 * yStride)
                 HexRow 3 xOffset (yOffset + 4 * yStride)
             ]
@@ -49,6 +50,41 @@ type Components =
                 Value = i + 1
                 CenterX = x
                 CenterY = y
+            })
+
+        let addUp ids tiles =
+            ids
+            |> List.map (fun id -> tiles |> List.find (fun t -> t.Id = id))
+            |> List.sumBy (fun t -> t.Value)
+
+        let sums = [
+            // Rows
+            [ 0; 1; 2 ], (xOffset - xStride, yOffset)
+            [ 3; 4; 5; 6 ], (xOffset - rowShift - xStride, yOffset + yStride)
+            [ 7; 8; 9; 10; 11 ], (xOffset - 2 * xStride, yOffset + 2 * yStride)
+            [ 12; 13; 14; 15 ], (xOffset - rowShift - xStride, yOffset + 3 * yStride)
+            [ 16; 17; 18 ], (xOffset - xStride, yOffset + 4 * yStride)
+            // Down and to the Right
+            [ 0; 4; 9; 14; 18 ], (xOffset + xStride * 2 + rowShift, yOffset + 5 * yStride)
+            [ 1; 5; 10; 15 ], (xOffset + xStride * 3, yOffset + 4 * yStride)
+            [ 2; 6; 11 ], (xOffset + xStride * 3 + rowShift, yOffset + 3 * yStride)
+            [ 3; 8; 13; 17 ], (xOffset + xStride + rowShift, yOffset + 5 * yStride)
+            [ 7; 12; 16 ], (xOffset + rowShift, yOffset + 5 * yStride)
+            // Down and to the Left
+            [ 0; 3; 7 ], (xOffset + rowShift, yOffset - yStride)
+            [ 1; 4; 8; 12 ], (xOffset + xStride + rowShift, yOffset - yStride)
+            [ 2; 5; 9; 13; 16 ], (xOffset + 2 * xStride + rowShift, yOffset - yStride)
+            [ 6; 10; 14; 17 ], (xOffset + 3 * xStride, yOffset)
+            [ 11; 15; 18 ], (xOffset + 3 * xStride + rowShift, yOffset + yStride)
+        ]
+
+        let makeSums tiles =
+            sums
+            |> List.map (fun (ids, pos) -> {
+                Id = 0
+                Value = addUp ids tiles
+                CenterX = pos |> fst
+                CenterY = pos |> snd
             })
 
         let swapHelper id1 id2 state =
@@ -68,9 +104,15 @@ type Components =
                 state with
                     Tiles = newTiles
                     Selected = None
+                    Sums = makeSums newTiles
             }
 
-        let initialState = { Tiles = board; Selected = None }
+        let initialState = {
+            Tiles = board
+            Selected = None
+            Sums = makeSums board
+        }
+
         let state, setState = React.useState (initialState)
 
         let update msg state =
@@ -95,6 +137,9 @@ type Components =
                 (y + s * 2)
                 (x - s * 7)
                 (y - s * 6)
+
+        let allSums = sums |> List.map (fun (ids, _) -> addUp ids state.Tiles)
+        printfn "All Sums: %A" allSums
 
         let HexAt t selected =
             let isSelected =
@@ -124,6 +169,22 @@ type Components =
                 ]
             ]
 
+        let SumAt sum =
+            Svg.g [
+                svg.key (string sum.CenterX + "," + string sum.CenterY)
+                svg.children [
+                    Svg.text [
+                        svg.x (sum.CenterX + 100)
+                        svg.y (sum.CenterY - 20)
+                        svg.textAnchor.middle
+                        svg.dominantBaseline.middle
+                        svg.fontSize 16
+                        svg.fill (if sum.Value = 38 then "#073553" else "#bf616a")
+                        svg.children [ Html.text (string sum.Value) ]
+                    ]
+                ]
+            ]
+
         Html.div [
             prop.className "flex min-h-screen bg-gray-100"
             prop.children [
@@ -132,9 +193,14 @@ type Components =
                     prop.children [
                         Html.h1 [ prop.text "Hypatian Enigma" ]
                         Svg.svg [
-                            svg.width 800
-                            svg.height 800
-                            svg.children (List.map (fun t -> HexAt t state.Selected) state.Tiles)
+                            svg.width 1000
+                            svg.height 1000
+                            svg.children (
+                                List.concat [
+                                    List.map (fun t -> HexAt t state.Selected) state.Tiles
+                                    List.map SumAt state.Sums
+                                ]
+                            )
                         ]
                     ]
                 ]
