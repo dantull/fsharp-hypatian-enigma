@@ -57,6 +57,12 @@ type Components =
             |> List.map (fun id -> tiles |> List.find (fun t -> t.Id = id))
             |> List.sumBy (fun t -> t.Value)
 
+        let collectPoints =
+            fun ids tiles ->
+                ids
+                |> List.map (fun id -> tiles |> List.find (fun t -> t.Id = id))
+                |> List.map (fun t -> (t.CenterX, t.CenterY))
+
         let sums = [
             // Rows
             [ 0; 1; 2 ], (xOffset - xStride, yOffset)
@@ -86,6 +92,38 @@ type Components =
                 CenterX = pos |> fst
                 CenterY = pos |> snd
             })
+
+        let guideLines board =
+            sums
+            |> List.map (fun (ids, pos) ->
+                let points = pos :: collectPoints ids board
+
+                let pointString =
+                    points
+                    |> List.map (fun (x, y) -> sprintf "%d,%d" (x + 100) (y - 20))
+                    |> String.concat " "
+
+                Svg.g [
+                    svg.children [
+                        Svg.polyline [
+                            svg.points pointString
+                            svg.fill "none"
+                            svg.stroke "#2e3440"
+                            svg.strokeWidth 60
+                            svg.strokeLineCap "round"
+                            svg.strokeLineJoin "round"
+                        ]
+                        Svg.polyline [
+                            svg.points pointString
+                            svg.fill "none"
+                            svg.stroke "#d8dee9"
+                            svg.strokeWidth 56
+                            svg.strokeLineCap "round"
+                            svg.strokeLineJoin "round"
+                        ]
+                    ]
+                ]
+            )
 
         let swapHelper id1 id2 state =
             let tiles = state.Tiles
@@ -141,6 +179,8 @@ type Components =
         let allSums = sums |> List.map (fun (ids, _) -> addUp ids state.Tiles)
         printfn "All Sums: %A" allSums
 
+        let guideLinesSvg = guideLines state.Tiles
+
         let HexAt t selected =
             let isSelected =
                 match selected with
@@ -155,6 +195,7 @@ type Components =
                         svg.points (HexPointsString (t.CenterX + 100) t.CenterY s)
                         svg.fill (if isSelected then "#88cfff" else "#88c0d0")
                         svg.stroke "#2e3440"
+                        svg.fillOpacity 0.6
                         svg.strokeWidth (if isSelected then 4 else 2)
                     ]
                     Svg.text [
@@ -197,6 +238,7 @@ type Components =
                             svg.height 1000
                             svg.children (
                                 List.concat [
+                                    guideLinesSvg
                                     List.map (fun t -> HexAt t state.Selected) state.Tiles
                                     List.map SumAt state.Sums
                                 ]
