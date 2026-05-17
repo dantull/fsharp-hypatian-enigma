@@ -61,14 +61,27 @@ type Components =
                 (y - s * 6)
 
         let HexAt t =
-            Svg.polygon [
-                svg.points (HexPointsString (t.CenterX + 100) t.CenterY s)
-                svg.fill "#88c0d0"
-                svg.stroke "#2e3440"
-                svg.strokeWidth 3
-                svg.onClick (fun e -> printfn "Clicked at %d" t.Id)
+            Svg.g [
+                svg.key (string t.Id)
+                svg.children [
+                    Svg.polygon [
+                        svg.points (HexPointsString (t.CenterX + 100) t.CenterY s)
+                        svg.fill "#88c0d0"
+                        svg.stroke "#2e3440"
+                        svg.strokeWidth 3
+                        svg.onClick (fun e -> printfn "Clicked at %d" t.Id)
+                    ]
+                    Svg.text [
+                        svg.x (t.CenterX + 100)
+                        svg.y (t.CenterY - 20)
+                        svg.textAnchor.middle
+                        svg.dominantBaseline.middle
+                        svg.fontSize 20
+                        svg.fill "#2e3440"
+                        svg.children [ Html.text (string t.Value) ]
+                    ]
+                ]
             ]
-
 
         Html.div [
             prop.className "flex min-h-screen bg-gray-100"
