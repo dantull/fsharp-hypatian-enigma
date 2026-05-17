@@ -9,7 +9,20 @@ type Components =
     /// </summary>
     [<ReactComponent>]
     static member HexGrid() =
-        let centers = [ (50, 150); (200, 150); (350, 150) ]
+        let xStride = 150 // same row x spacing
+        let rowShift = 75 // x shift for odd rows
+        let xOffset = 50 // x offset for the first column
+        let yStride = 130 // y spacing between rows
+        let yOffset = 150 // y offset for the first row
+
+        let centers = [
+            (xOffset, yOffset)
+            (xOffset + xStride, yOffset)
+            (xOffset + 2 * xStride, yOffset)
+            (xOffset + rowShift, yOffset + yStride)
+            (xOffset + xStride + rowShift, yOffset + yStride)
+        ]
+
         let s = 10
 
         let HexPointsString x y s =
