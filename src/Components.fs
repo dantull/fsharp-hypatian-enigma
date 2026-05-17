@@ -9,21 +9,24 @@ type Components =
     /// </summary>
     [<ReactComponent>]
     static member HexGrid() =
-        let xStride = 150 // same row x spacing
-        let rowShift = 75 // x shift for odd rows
-        let xOffset = 50 // x offset for the first column
-        let yStride = 130 // y spacing between rows
-        let yOffset = 150 // y offset for the first row
-
-        let centers = [
-            (xOffset, yOffset)
-            (xOffset + xStride, yOffset)
-            (xOffset + 2 * xStride, yOffset)
-            (xOffset + rowShift, yOffset + yStride)
-            (xOffset + xStride + rowShift, yOffset + yStride)
-        ]
-
         let s = 10
+
+        let xStride = 15 * s // same row x spacing
+        let rowShift = xStride / 2 // x shift for odd rows
+        let xOffset = 15 * s // x offset for the first column
+        let yStride = 13 * s // y spacing between rows
+        let yOffset = 15 * s // y offset for the first row
+
+        let HexRow = fun count x y -> [ for i in 0 .. count - 1 -> (x + i * xStride, y) ]
+
+        let centers =
+            List.concat [
+                HexRow 3 xOffset yOffset
+                HexRow 4 (xOffset - rowShift) (yOffset + yStride)
+                HexRow 5 (xOffset - 2 * rowShift) (yOffset + 2 * yStride)
+                HexRow 4 (xOffset - rowShift) (yOffset + 3 * yStride)
+                HexRow 3 xOffset (yOffset + 4 * yStride)
+            ]
 
         let HexPointsString x y s =
             sprintf
@@ -59,8 +62,8 @@ type Components =
                     prop.children [
                         Html.h1 [ prop.text "Hypatian Enigma" ]
                         Svg.svg [
-                            svg.width 600
-                            svg.height 600
+                            svg.width 800
+                            svg.height 800
                             svg.children (List.map (fun (x, y) -> HexAt x y s) centers)
                         ]
                     ]
