@@ -9,6 +9,13 @@ type Tile = {
     CenterY: int
 }
 
+type Msg = TileClicked of int
+
+type State = {
+    Tiles: Tile list
+    Selected: int option
+}
+
 type Components =
 
     /// <summary>
@@ -44,6 +51,15 @@ type Components =
                 CenterY = y
             })
 
+        let initialState = { Tiles = board; Selected = None }
+        let state, setState = React.useState (initialState)
+
+        let update msg state =
+            match msg with
+            | TileClicked id -> { state with Selected = Some id }
+
+        let dispatch msg = setState (update msg state)
+
         let HexPointsString x y s =
             sprintf
                 "%d,%d %d,%d %d,%d %d,%d %d,%d %d,%d"
@@ -60,16 +76,21 @@ type Components =
                 (x - s * 7)
                 (y - s * 6)
 
-        let HexAt t =
+        let HexAt t selected =
+            let isSelected =
+                match selected with
+                | Some id when id = t.Id -> true
+                | _ -> false
+
             Svg.g [
                 svg.key (string t.Id)
+                svg.onClick (fun _ -> dispatch (TileClicked t.Id))
                 svg.children [
                     Svg.polygon [
                         svg.points (HexPointsString (t.CenterX + 100) t.CenterY s)
-                        svg.fill "#88c0d0"
+                        svg.fill (if isSelected then "#88cfff" else "#88c0d0")
                         svg.stroke "#2e3440"
-                        svg.strokeWidth 3
-                        svg.onClick (fun e -> printfn "Clicked at %d" t.Id)
+                        svg.strokeWidth (if isSelected then 4 else 2)
                     ]
                     Svg.text [
                         svg.x (t.CenterX + 100)
@@ -90,7 +111,11 @@ type Components =
                     prop.className "container flex flex-col gap-2 [&_h1]:text-4xl items-center mx-auto pt-12"
                     prop.children [
                         Html.h1 [ prop.text "Hypatian Enigma" ]
-                        Svg.svg [ svg.width 800; svg.height 800; svg.children (List.map HexAt board) ]
+                        Svg.svg [
+                            svg.width 800
+                            svg.height 800
+                            svg.children (List.map (fun t -> HexAt t state.Selected) board)
+                        ]
                     ]
                 ]
             ]
