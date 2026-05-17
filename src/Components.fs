@@ -32,16 +32,16 @@ type Components =
         let yStride = 13 * s // y spacing between rows
         let yOffset = 25 * s // y offset for the first row
 
-        let HexRow = fun count x y -> [ for i in 0 .. count - 1 -> (x + i * xStride, y) ]
+        let hexCoord q r =
+            let x = xOffset + (q * xStride) + (r * rowShift)
+            let y = yOffset + (r * yStride)
+            (x, y)
+
+
+        let HexRow = fun count q r -> [ for i in 0 .. count - 1 -> hexCoord (q + i) r ]
 
         let centers =
-            List.concat [
-                HexRow 3 xOffset yOffset
-                HexRow 4 (xOffset - rowShift) (yOffset + yStride)
-                HexRow 5 (xOffset - xStride) (yOffset + 2 * yStride)
-                HexRow 4 (xOffset - rowShift) (yOffset + 3 * yStride)
-                HexRow 3 xOffset (yOffset + 4 * yStride)
-            ]
+            List.concat [ HexRow 3 0 0; HexRow 4 -1 1; HexRow 5 -2 2; HexRow 4 -2 3; HexRow 3 -2 4 ]
 
         let board =
             centers
@@ -65,23 +65,23 @@ type Components =
 
         let sums = [
             // Rows
-            [ 0; 1; 2 ], (xOffset - xStride, yOffset)
-            [ 3; 4; 5; 6 ], (xOffset - rowShift - xStride, yOffset + yStride)
-            [ 7; 8; 9; 10; 11 ], (xOffset - 2 * xStride, yOffset + 2 * yStride)
-            [ 12; 13; 14; 15 ], (xOffset - rowShift - xStride, yOffset + 3 * yStride)
-            [ 16; 17; 18 ], (xOffset - xStride, yOffset + 4 * yStride)
+            [ 0; 1; 2 ], hexCoord -1 0
+            [ 3; 4; 5; 6 ], hexCoord -2 1
+            [ 7; 8; 9; 10; 11 ], hexCoord -3 2
+            [ 12; 13; 14; 15 ], hexCoord -3 3
+            [ 16; 17; 18 ], hexCoord -3 4
             // Down and to the Right
-            [ 0; 4; 9; 14; 18 ], (xOffset + xStride * 2 + rowShift, yOffset + 5 * yStride)
-            [ 1; 5; 10; 15 ], (xOffset + xStride * 3, yOffset + 4 * yStride)
-            [ 2; 6; 11 ], (xOffset + xStride * 3 + rowShift, yOffset + 3 * yStride)
-            [ 3; 8; 13; 17 ], (xOffset + xStride + rowShift, yOffset + 5 * yStride)
-            [ 7; 12; 16 ], (xOffset + rowShift, yOffset + 5 * yStride)
+            [ 0; 4; 9; 14; 18 ], hexCoord 0 5
+            [ 1; 5; 10; 15 ], hexCoord 1 4
+            [ 2; 6; 11 ], hexCoord 2 3
+            [ 3; 8; 13; 17 ], hexCoord -1 5
+            [ 7; 12; 16 ], hexCoord -2 5
             // Down and to the Left
-            [ 0; 3; 7 ], (xOffset + rowShift, yOffset - yStride)
-            [ 1; 4; 8; 12 ], (xOffset + xStride + rowShift, yOffset - yStride)
-            [ 2; 5; 9; 13; 16 ], (xOffset + 2 * xStride + rowShift, yOffset - yStride)
-            [ 6; 10; 14; 17 ], (xOffset + 3 * xStride, yOffset)
-            [ 11; 15; 18 ], (xOffset + 3 * xStride + rowShift, yOffset + yStride)
+            [ 0; 3; 7 ], hexCoord 1 -1
+            [ 1; 4; 8; 12 ], hexCoord 2 -1
+            [ 2; 5; 9; 13; 16 ], hexCoord 3 -1
+            [ 6; 10; 14; 17 ], hexCoord 3 0
+            [ 11; 15; 18 ], hexCoord 3 1
         ]
 
         let makeSums tiles =
