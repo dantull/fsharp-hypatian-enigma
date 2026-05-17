@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+    </PropertyGroup>
+    <ItemGroup>
+        <None Include="index.html" />
+        <Compile Include="Components.fs" />
+        <Compile Include="Components.test.fs" />
+        <Compile Include="Main.fs" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Feliz" />
+        <PackageReference Include="Vitest" />
+        <PackageReference Include="Vitest.JestDom" />
+        <PackageReference Include="Vitest.ReactTestingLibrary" />
+        <PackageReference Include="Vitest.UserEvent" />
+    </ItemGroup>
+</Project>
