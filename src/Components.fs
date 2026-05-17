@@ -2,6 +2,13 @@ namespace App
 
 open Feliz
 
+type Tile = {
+    Id: int
+    Value: int
+    CenterX: int
+    CenterY: int
+}
+
 type Components =
 
     /// <summary>
@@ -28,6 +35,15 @@ type Components =
                 HexRow 3 xOffset (yOffset + 4 * yStride)
             ]
 
+        let board =
+            centers
+            |> List.mapi (fun i (x, y) -> {
+                Id = i
+                Value = i + 1
+                CenterX = x
+                CenterY = y
+            })
+
         let HexPointsString x y s =
             sprintf
                 "%d,%d %d,%d %d,%d %d,%d %d,%d %d,%d"
@@ -44,13 +60,13 @@ type Components =
                 (x - s * 7)
                 (y - s * 6)
 
-        let HexAt x y s =
+        let HexAt t =
             Svg.polygon [
-                svg.points (HexPointsString (x + 100) y s)
+                svg.points (HexPointsString (t.CenterX + 100) t.CenterY s)
                 svg.fill "#88c0d0"
                 svg.stroke "#2e3440"
                 svg.strokeWidth 3
-                svg.onClick (fun e -> printfn "Clicked at (%d, %d)" x y)
+                svg.onClick (fun e -> printfn "Clicked at %d" t.Id)
             ]
 
 
@@ -61,11 +77,7 @@ type Components =
                     prop.className "container flex flex-col gap-2 [&_h1]:text-4xl items-center mx-auto pt-12"
                     prop.children [
                         Html.h1 [ prop.text "Hypatian Enigma" ]
-                        Svg.svg [
-                            svg.width 800
-                            svg.height 800
-                            svg.children (List.map (fun (x, y) -> HexAt x y s) centers)
-                        ]
+                        Svg.svg [ svg.width 800; svg.height 800; svg.children (List.map HexAt board) ]
                     ]
                 ]
             ]
