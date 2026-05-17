@@ -51,12 +51,32 @@ type Components =
                 CenterY = y
             })
 
+        let swapHelper id1 id2 state =
+            let tiles = state.Tiles
+            let tile1 = tiles |> List.find (fun t -> t.Id = id1)
+            let tile2 = tiles |> List.find (fun t -> t.Id = id2)
+
+            let newTiles =
+                tiles
+                |> List.map (fun t ->
+                    if t.Id = id1 then { t with Value = tile2.Value }
+                    elif t.Id = id2 then { t with Value = tile1.Value }
+                    else t
+                )
+
+            {
+                state with
+                    Tiles = newTiles
+                    Selected = None
+            }
+
         let initialState = { Tiles = board; Selected = None }
         let state, setState = React.useState (initialState)
 
         let update msg state =
-            match msg with
-            | TileClicked id -> { state with Selected = Some id }
+            match msg, state.Selected with
+            | TileClicked id, Some selectedId -> swapHelper id selectedId state
+            | TileClicked id, _ -> { state with Selected = Some id }
 
         let dispatch msg = setState (update msg state)
 
@@ -114,7 +134,7 @@ type Components =
                         Svg.svg [
                             svg.width 800
                             svg.height 800
-                            svg.children (List.map (fun t -> HexAt t state.Selected) board)
+                            svg.children (List.map (fun t -> HexAt t state.Selected) state.Tiles)
                         ]
                     ]
                 ]
