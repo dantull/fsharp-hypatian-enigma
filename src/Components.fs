@@ -11,22 +11,23 @@ type Components =
     static member HexGrid() =
         let x = 150
         let y = 150
+        let s = 10
 
-        let HexPointsString x y =
+        let HexPointsString x y s =
             sprintf
                 "%d,%d %d,%d %d,%d %d,%d %d,%d %d,%d"
                 (x)
-                (y - 100)
-                (x + 70)
-                (y - 60)
-                (x + 70)
-                (y + 20)
+                (y - s * 10)
+                (x + s * 7)
+                (y - s * 6)
+                (x + s * 7)
+                (y + s * 2)
                 (x)
-                (y + 60)
-                (x - 70)
-                (y + 20)
-                (x - 70)
-                (y - 60)
+                (y + s * 6)
+                (x - s * 7)
+                (y + s * 2)
+                (x - s * 7)
+                (y - s * 6)
 
         Html.div [
             prop.className "flex min-h-screen bg-gray-100"
@@ -40,7 +41,7 @@ type Components =
                             svg.height 300
                             svg.children [
                                 Svg.polygon [
-                                    svg.points (HexPointsString x y)
+                                    svg.points (HexPointsString x y s)
                                     svg.fill "#88c0d0"
                                     svg.stroke "#2e3440"
                                     svg.strokeWidth 3
