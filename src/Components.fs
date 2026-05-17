@@ -9,8 +9,7 @@ type Components =
     /// </summary>
     [<ReactComponent>]
     static member HexGrid() =
-        let x = 200
-        let y = 150
+        let centers = [ (50, 150); (200, 150); (350, 150) ]
         let s = 10
 
         let HexPointsString x y s =
@@ -48,7 +47,7 @@ type Components =
                         Svg.svg [
                             svg.width 600
                             svg.height 600
-                            svg.children [ HexAt (x - 100) y s; HexAt (x + 100) y s ]
+                            svg.children (List.map (fun (x, y) -> HexAt x y s) centers)
                         ]
                     ]
                 ]
