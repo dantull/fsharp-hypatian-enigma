@@ -47,6 +47,7 @@ type Components =
                 svg.fill "#88c0d0"
                 svg.stroke "#2e3440"
                 svg.strokeWidth 3
+                svg.onClick (fun e -> printfn "Clicked at (%d, %d)" x y)
             ]
 
 
