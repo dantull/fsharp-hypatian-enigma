@@ -232,7 +232,6 @@ type Components =
                 Html.div [
                     prop.className "container flex flex-col gap-2 [&_h1]:text-4xl items-center mx-auto pt-12"
                     prop.children [
-                        Html.h1 [ prop.text "Hypatian Enigma" ]
                         Svg.svg [
                             svg.width 1000
                             svg.height 1000
