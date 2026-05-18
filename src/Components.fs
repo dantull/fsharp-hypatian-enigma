@@ -127,8 +127,6 @@ type Components =
                     | None -> t
                 )
 
-            printfn "Updated state from saved tiles: %A" newTiles
-
             {
                 state with
                     Tiles = newTiles
@@ -234,11 +232,6 @@ type Components =
                 (y + s * 2)
                 (x - s * 7)
                 (y - s * 6)
-
-        let allSums = sums |> List.map (fun (ids, _) -> addUp ids state.Tiles)
-        printfn "All Sums: %A" allSums
-
-        let guideLinesSvg = guideLines state.Tiles
 
         let HexAt t selected =
             let isSelected =
