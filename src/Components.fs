@@ -205,21 +205,35 @@ type Components =
 
         let persistKey = "hypatian-enigma-state"
 
+        let tryLocalStorage () =
+            try
+                let storage = window.localStorage
+                if isNull storage then None else Some storage
+            with _ ->
+                None
+
         let maybeUpdate state =
-            match window.localStorage.getItem (persistKey) with
-            | null -> state
-            | json ->
-                match Decode.Auto.fromString<SavedTile list> json with
-                | Ok tiles -> updateFromSavedTiles tiles state
-                | Error err ->
-                    console.error ("Failed to decode saved state:", err)
-                    state
+            match tryLocalStorage () with
+            | None -> state
+            | Some storage ->
+                match storage.getItem (persistKey) with
+                | null -> state
+                | json ->
+                    match Decode.Auto.fromString<SavedTile list> json with
+                    | Ok tiles -> updateFromSavedTiles tiles state
+                    | Error err ->
+                        console.error ("Failed to decode saved state:", err)
+                        state
 
         let state, setState = React.useState (maybeUpdate initialState)
 
         let persistState state =
             let json = Encode.Auto.toString (0, toSavedTiles state.Tiles)
-            window.localStorage.setItem (persistKey, json)
+
+            match tryLocalStorage () with
+            | Some storage -> storage.setItem (persistKey, json)
+            | None -> ()
+
             state
 
         let update msg state =
