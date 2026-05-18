@@ -229,6 +229,13 @@ type Components =
 
         let dispatch msg = setState (update msg state)
 
+        let actionButton (text: string) onClick =
+            Html.button [
+                prop.className "px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                prop.onClick onClick
+                prop.children [ Html.text text ]
+            ]
+
         let HexPointsString x y s =
             sprintf
                 "%d,%d %d,%d %d,%d %d,%d %d,%d %d,%d"
@@ -318,22 +325,18 @@ type Components =
                                 Html.div [
                                     prop.className "flex flex-wrap justify-center gap-2"
                                     prop.children [
-                                        Html.button [
-                                            prop.className "px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                                            prop.onClick (fun _ ->
+                                        actionButton
+                                            "Reset"
+                                            (fun _ ->
                                                 window.localStorage.removeItem persistKey
                                                 setState initialState
                                             )
-                                            prop.children [ Html.text "Reset" ]
-                                        ]
-                                        Html.button [
-                                            prop.className "px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                                            prop.onClick (fun _ ->
+                                        actionButton
+                                            "Shuffle"
+                                            (fun _ ->
                                                 window.localStorage.removeItem persistKey
                                                 setState (shuffleTiles initialState)
                                             )
-                                            prop.children [ Html.text "Shuffle" ]
-                                        ]
                                     ]
                                 ]
                             ]
