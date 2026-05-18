@@ -321,9 +321,11 @@ type Components =
                             prop.className "flex flex-col items-center gap-4"
                             prop.children [
                                 Html.div [
-                                    prop.className "flex justify-center"
+                                    prop.className "flex justify-center w-full px-4 sm:px-6"
                                     prop.children [
                                         Svg.svg [
+                                            svg.className "max-w-full h-auto"
+                                            svg.viewBox (sprintf "0 0 %d %d" width height)
                                             svg.width width
                                             svg.height height
                                             svg.children (
