@@ -1,5 +1,9 @@
 namespace App
 
+open Browser.Dom
+open Fable.Core
+open Fable.Core.JsInterop
+open Thoth.Json
 open Feliz
 
 type Tile = {
@@ -8,6 +12,8 @@ type Tile = {
     CenterX: int
     CenterY: int
 }
+
+type SavedTile = { SavedId: int; SavedValue: int }
 
 type Msg = TileClicked of int
 
@@ -52,6 +58,9 @@ type Components =
                 CenterY = y
             })
 
+        let toSavedTile (t: Tile) = { SavedId = t.Id; SavedValue = t.Value }
+        let toSavedTiles (tiles: Tile list) = tiles |> List.map toSavedTile
+
         let addUp ids tiles =
             ids
             |> List.map (fun id -> tiles |> List.find (fun t -> t.Id = id))
@@ -92,6 +101,26 @@ type Components =
                 CenterX = pos |> fst
                 CenterY = pos |> snd
             })
+
+        let updateFromSavedTiles (savedTiles: SavedTile list) (state: State) =
+            let savedTileMap =
+                savedTiles |> List.map (fun st -> (st.SavedId, st.SavedValue)) |> Map.ofList
+
+            let newTiles =
+                state.Tiles
+                |> List.map (fun t ->
+                    match Map.tryFind t.Id savedTileMap with
+                    | Some savedValue -> { t with Value = savedValue }
+                    | None -> t
+                )
+
+            printfn "Updated state from saved tiles: %A" newTiles
+
+            {
+                state with
+                    Tiles = newTiles
+                    Sums = makeSums newTiles
+            }
 
         let guideLines board =
             sums
@@ -151,9 +180,24 @@ type Components =
             Sums = makeSums board
         }
 
-        let state, setState = React.useState (initialState)
+        let persistKey = "hypatian-enigma-state"
+
+        let maybeUpdate state =
+            match window.localStorage.getItem (persistKey) with
+            | null -> state
+            | json ->
+                match Decode.Auto.fromString<SavedTile list> json with
+                | Ok tiles -> updateFromSavedTiles tiles state
+                | Error err ->
+                    console.error ("Failed to decode saved state:", err)
+                    state
+
+        let state, setState = React.useState (maybeUpdate initialState)
 
         let update msg state =
+            let json = Encode.Auto.toString (0, toSavedTiles state.Tiles)
+            window.localStorage.setItem (persistKey, json)
+
             match msg, state.Selected with
             | TileClicked id, Some selectedId -> swapHelper id selectedId state
             | TileClicked id, _ -> { state with Selected = Some id }

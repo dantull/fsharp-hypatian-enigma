@@ -10,6 +10,7 @@
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Feliz" />
+        <PackageReference Include="Thoth.Json" />
         <PackageReference Include="Vitest" />
         <PackageReference Include="Vitest.JestDom" />
         <PackageReference Include="Vitest.ReactTestingLibrary" />
