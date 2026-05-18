@@ -1,7 +1,6 @@
 module Tests.Components
 
 open Vitest
-open Feliz
 
 Vitest.describe (
     "HexGrid",

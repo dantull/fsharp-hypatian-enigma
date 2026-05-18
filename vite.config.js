@@ -13,6 +13,14 @@ export default defineConfig({
     include: ['**/*.{test,spec}.?(c|m|fs.)[jt]s?(x)'],
     environment: 'jsdom',
     setupFiles: ['./vitest-setup.ts'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'lcov'],
+      reportsDirectory: '../coverage',
+      all: true,
+      include: ['**/*.{fs,fsx,fs.jsx}'],
+      exclude: ['**/*.test.*', 'fable_modules/**', 'node_modules/**', '**/bin/**', '**/obj/**'],
+    },
   },
   server: {
       watch: {

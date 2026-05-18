@@ -1,5 +1,9 @@
 import '@testing-library/jest-dom/vitest';
 
+if (typeof process !== 'undefined') {
+  process.env.NODE_ENV = 'test'
+}
+
 const localStorageMock = (() => {
   let store: Record<string, string> = {}
   return {
