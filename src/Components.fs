@@ -1,8 +1,6 @@
 namespace App
 
 open Browser.Dom
-open Fable.Core
-open Fable.Core.JsInterop
 open Thoth.Json
 open Feliz
 
