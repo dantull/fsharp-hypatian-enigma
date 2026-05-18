@@ -51,14 +51,25 @@ type Components =
         let centers =
             List.concat [ HexRow 3 0 0; HexRow 4 -1 1; HexRow 5 -2 2; HexRow 4 -2 3; HexRow 3 -2 4 ]
 
-        let board =
+        let centerHex = centers |> List.item 9
+        let boardCenterOffset = (width / 2 - fst centerHex, height / 2 - snd centerHex)
+
+        let shiftedCenters =
             centers
+            |> List.map (fun (x, y) -> (x + fst boardCenterOffset, y + snd boardCenterOffset))
+
+        let board =
+            shiftedCenters
             |> List.mapi (fun i (x, y) -> {
                 Id = i
                 Value = i + 1
                 CenterX = x
                 CenterY = y
             })
+
+        let hexCoord q r =
+            let x, y = hexCoord q r
+            (x + fst boardCenterOffset, y + snd boardCenterOffset)
 
         let toSavedTile (t: Tile) = { SavedId = t.Id; SavedValue = t.Value }
         let toSavedTiles (tiles: Tile list) = tiles |> List.map toSavedTile
@@ -131,7 +142,7 @@ type Components =
 
                 let pointString =
                     points
-                    |> List.map (fun (x, y) -> sprintf "%d,%d" (x + 100) (y - 20))
+                    |> List.map (fun (x, y) -> sprintf "%d,%d" x (y - 20))
                     |> String.concat " "
 
                 Svg.g [
@@ -240,14 +251,14 @@ type Components =
                 svg.onClick (fun _ -> dispatch (TileClicked t.Id))
                 svg.children [
                     Svg.polygon [
-                        svg.points (HexPointsString (t.CenterX + 100) t.CenterY s)
+                        svg.points (HexPointsString t.CenterX t.CenterY s)
                         svg.fill (if isSelected then "#88cfff" else "#88c0d0")
                         svg.stroke "#2e3440"
                         svg.fillOpacity 0.6
                         svg.strokeWidth (if isSelected then 4 else 2)
                     ]
                     Svg.text [
-                        svg.x (t.CenterX + 100)
+                        svg.x t.CenterX
                         svg.y (t.CenterY - 20)
                         svg.textAnchor.middle
                         svg.dominantBaseline.middle
@@ -263,7 +274,7 @@ type Components =
                 svg.key (string sum.CenterX + "," + string sum.CenterY)
                 svg.children [
                     Svg.text [
-                        svg.x (sum.CenterX + 100)
+                        svg.x sum.CenterX
                         svg.y (sum.CenterY - 20)
                         svg.textAnchor.middle
                         svg.dominantBaseline.middle
@@ -280,24 +291,39 @@ type Components =
                 Html.div [
                     prop.className "container flex flex-col gap-2 [&_h1]:text-4xl items-center mx-auto pt-12"
                     prop.children [
-                        Svg.svg [
-                            svg.width width
-                            svg.height height
-                            svg.children (
-                                List.concat [
-                                    guideLinesSvg
-                                    List.map (fun t -> HexAt t state.Selected) state.Tiles
-                                    List.map SumAt state.Sums
+                        Html.div [
+                            prop.className "flex flex-col items-center gap-4"
+                            prop.children [
+                                Html.div [
+                                    prop.className "flex justify-center"
+                                    prop.children [
+                                        Svg.svg [
+                                            svg.width width
+                                            svg.height height
+                                            svg.children (
+                                                List.concat [
+                                                    guideLines state.Tiles
+                                                    List.map (fun t -> HexAt t state.Selected) state.Tiles
+                                                    List.map SumAt state.Sums
+                                                ]
+                                            )
+                                        ]
+                                    ]
                                 ]
-                            )
-                        ]
-                        Html.button [
-                            prop.className "px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                            prop.onClick (fun _ ->
-                                window.localStorage.removeItem persistKey
-                                setState initialState
-                            )
-                            prop.children [ Html.text "Reset" ]
+                                Html.div [
+                                    prop.className "flex flex-wrap justify-center gap-2"
+                                    prop.children [
+                                        Html.button [
+                                            prop.className "px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                            prop.onClick (fun _ ->
+                                                window.localStorage.removeItem persistKey
+                                                setState initialState
+                                            )
+                                            prop.children [ Html.text "Reset" ]
+                                        ]
+                                    ]
+                                ]
+                            ]
                         ]
                     ]
                 ]
