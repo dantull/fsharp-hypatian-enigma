@@ -37,6 +37,8 @@ type Components =
         let xOffset = 25 * s // x offset for the first column
         let yStride = 13 * s // y spacing between rows
         let yOffset = 25 * s // y offset for the first row
+        let width = xStride * 8
+        let height = yStride * 8
 
         let hexCoord q r =
             let x = xOffset + (q * xStride) + (r * rowShift)
@@ -279,8 +281,8 @@ type Components =
                     prop.className "container flex flex-col gap-2 [&_h1]:text-4xl items-center mx-auto pt-12"
                     prop.children [
                         Svg.svg [
-                            svg.width 1000
-                            svg.height 1000
+                            svg.width width
+                            svg.height height
                             svg.children (
                                 List.concat [
                                     guideLinesSvg
