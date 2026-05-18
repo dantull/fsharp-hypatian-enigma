@@ -28,15 +28,15 @@ type Components =
     /// </summary>
     [<ReactComponent>]
     static member HexGrid() =
-        let s = 10
+        let s = 8
 
-        let xStride = 15 * s // same row x spacing
+        let xStride = 18 * s // same row x spacing
         let rowShift = xStride / 2 // x shift for odd rows
         let xOffset = 25 * s // x offset for the first column
-        let yStride = 13 * s // y spacing between rows
+        let yStride = 16 * s // y spacing between rows
         let yOffset = 25 * s // y offset for the first row
-        let width = xStride * 8
-        let height = yStride * 8
+        let width = xStride * 7
+        let height = yStride * 7
 
         let axialCoord q r =
             let x = xOffset + (q * xStride) + (r * rowShift)
@@ -288,7 +288,7 @@ type Components =
                         svg.y (t.CenterY - 20)
                         svg.textAnchor.middle
                         svg.dominantBaseline.middle
-                        svg.fontSize 20
+                        svg.fontSize 30
                         svg.fill "#2e3440"
                         svg.children [ Html.text (string t.Value) ]
                     ]
@@ -304,7 +304,7 @@ type Components =
                         svg.y (sum.CenterY - 20)
                         svg.textAnchor.middle
                         svg.dominantBaseline.middle
-                        svg.fontSize 16
+                        svg.fontSize 30
                         svg.fill (if sum.Value = 38 then "#073553" else "#bf616a")
                         svg.children [ Html.text (string sum.Value) ]
                     ]
