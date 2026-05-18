@@ -185,6 +185,20 @@ type Components =
                     Sums = makeSums newTiles
             }
 
+        let shuffleTiles state =
+            let rnd = System.Random()
+
+            let shuffledValues =
+                state.Tiles |> List.map (fun t -> t.Value) |> List.sortBy (fun _ -> rnd.Next())
+
+            let savedTiles =
+                state.Tiles
+                |> List.map (fun t -> t.Id)
+                |> List.zip shuffledValues
+                |> List.map (fun (value, id) -> { SavedId = id; SavedValue = value })
+
+            updateFromSavedTiles savedTiles { state with Selected = None }
+
         let initialState = {
             Tiles = board
             Selected = None
@@ -313,6 +327,14 @@ type Components =
                                                 setState initialState
                                             )
                                             prop.children [ Html.text "Reset" ]
+                                        ]
+                                        Html.button [
+                                            prop.className "px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                            prop.onClick (fun _ ->
+                                                window.localStorage.removeItem persistKey
+                                                setState (shuffleTiles initialState)
+                                            )
+                                            prop.children [ Html.text "Shuffle" ]
                                         ]
                                     ]
                                 ]
