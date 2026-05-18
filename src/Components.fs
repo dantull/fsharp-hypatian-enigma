@@ -194,12 +194,14 @@ type Components =
 
         let state, setState = React.useState (maybeUpdate initialState)
 
-        let update msg state =
+        let persistState state =
             let json = Encode.Auto.toString (0, toSavedTiles state.Tiles)
             window.localStorage.setItem (persistKey, json)
+            state
 
+        let update msg state =
             match msg, state.Selected with
-            | TileClicked id, Some selectedId -> swapHelper id selectedId state
+            | TileClicked id, Some selectedId -> persistState (swapHelper id selectedId state)
             | TileClicked id, _ -> { state with Selected = Some id }
 
         let dispatch msg = setState (update msg state)
