@@ -40,13 +40,13 @@ type Components =
         let width = xStride * 8
         let height = yStride * 8
 
-        let hexCoord q r =
+        let axialCoord q r =
             let x = xOffset + (q * xStride) + (r * rowShift)
             let y = yOffset + (r * yStride)
             (x, y)
 
 
-        let HexRow = fun count q r -> [ for i in 0 .. count - 1 -> hexCoord (q + i) r ]
+        let HexRow = fun count q r -> [ for i in 0 .. count - 1 -> axialCoord (q + i) r ]
 
         let centers =
             List.concat [ HexRow 3 0 0; HexRow 4 -1 1; HexRow 5 -2 2; HexRow 4 -2 3; HexRow 3 -2 4 ]
@@ -68,7 +68,7 @@ type Components =
             })
 
         let hexCoord q r =
-            let x, y = hexCoord q r
+            let x, y = axialCoord q r
             (x + fst boardCenterOffset, y + snd boardCenterOffset)
 
         let toSavedTile (t: Tile) = { SavedId = t.Id; SavedValue = t.Value }
