@@ -1,6 +1,6 @@
-# Feliz Template
+# Hypatian Enigma
 
-This template gets you up and running with a simple web app using [Fable](http://fable.io/) and [Feliz](https://github.com/Zaid-Ajaj/Feliz).
+A simple web app created using [Fable](http://fable.io/) and [Feliz](https://github.com/Zaid-Ajaj/Feliz) to make a browser interface for solving the Hypatian Enigma hex puzzle.
 
 ## Requirements
 
@@ -9,9 +9,7 @@ This template gets you up and running with a simple web app using [Fable](http:/
 
 ## Editor
 
-To write and edit your code, you can use either VS Code + [Ionide](http://ionide.io/), Emacs with [fsharp-mode](https://github.com/fsharp/emacs-fsharp-mode), [Rider](https://www.jetbrains.com/rider/) or Visual Studio.
-
-It is recommended to use VS Code, as you can also profit from automated formatting using [Fantomas](https://github.com/fsprojects/Fantomas) and inline autocomplete for tailwindcss!
+To write and edit your code, you can use either VS Code + [Ionide](http://ionide.io/).
 
 ## Development
 
