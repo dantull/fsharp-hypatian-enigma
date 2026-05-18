@@ -19,6 +19,7 @@ type State = {
     Tiles: Tile list
     Selected: int option
     Sums: Tile list
+    Remaining: int
 }
 
 type Components =
@@ -113,6 +114,10 @@ type Components =
                 CenterY = pos |> snd
             })
 
+        let computeRemaining sums =
+            sums
+            |> List.sumBy (fun s -> if s.Value >= 38 then s.Value - 38 else 38 - s.Value)
+
         let updateFromSavedTiles (savedTiles: SavedTile list) (state: State) =
             let savedTileMap =
                 savedTiles |> List.map (fun st -> (st.SavedId, st.SavedValue)) |> Map.ofList
@@ -125,10 +130,14 @@ type Components =
                     | None -> t
                 )
 
+            let sums = makeSums newTiles
+
             {
                 state with
                     Tiles = newTiles
-                    Sums = makeSums newTiles
+                    Sums = sums
+                    Remaining = computeRemaining sums
+
             }
 
         let guideLines board =
@@ -176,11 +185,14 @@ type Components =
                     else t
                 )
 
+            let sums = makeSums newTiles
+
             {
                 state with
                     Tiles = newTiles
                     Selected = None
-                    Sums = makeSums newTiles
+                    Sums = sums
+                    Remaining = computeRemaining sums
             }
 
         let shuffleTiles state =
@@ -197,10 +209,13 @@ type Components =
 
             updateFromSavedTiles savedTiles { state with Selected = None }
 
+        let sums = makeSums board
+
         let initialState = {
             Tiles = board
             Selected = None
-            Sums = makeSums board
+            Sums = sums
+            Remaining = computeRemaining sums
         }
 
         let persistKey = "hypatian-enigma-state"
@@ -347,6 +362,11 @@ type Components =
                                                 window.localStorage.removeItem persistKey
                                                 setState initialState
                                             )
+                                        Html.span [
+                                            prop.className "blue-500 font-bold"
+                                            prop.style [ style.fontSize 24 ]
+                                            prop.children [ Html.text (sprintf "%d" state.Remaining) ]
+                                        ]
                                         actionButton
                                             "Shuffle"
                                             (fun _ ->
