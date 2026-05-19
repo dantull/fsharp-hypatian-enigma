@@ -59,14 +59,16 @@ module HypatianEngine =
     module Board =
         open Geometry
 
-        let centers =
+        let private centers =
             // actually should be in Board, but we need it to compute the center
             List.concat [ hexRow 3 0 0; hexRow 4 -1 1; hexRow 5 -2 2; hexRow 4 -2 3; hexRow 3 -2 4 ]
 
-        let centerHex = centers |> List.item 9
-        let boardCenterOffset = (width / 2 - fst centerHex, height / 2 - snd centerHex)
+        let private centerHex = centers |> List.item 9
 
-        let board =
+        let private boardCenterOffset =
+            (width / 2 - fst centerHex, height / 2 - snd centerHex)
+
+        let private board =
             centers
             |> List.map (translate boardCenterOffset)
             |> List.mapi (fun i (x, y) -> {
@@ -76,10 +78,10 @@ module HypatianEngine =
                 CenterY = y
             })
 
-        let hexCoord q r =
+        let private hexCoord q r =
             axialCoord q r |> translate boardCenterOffset
 
-        let sumsDefinition = [
+        let private sumsDefinition = [
             // Rows
             [ 0; 1; 2 ], hexCoord -1 0
             [ 3; 4; 5; 6 ], hexCoord -2 1
@@ -100,12 +102,12 @@ module HypatianEngine =
             [ 11; 15; 18 ], hexCoord 3 1
         ]
 
-        let addUp ids tiles =
+        let private addUp ids tiles =
             ids
             |> List.map (fun id -> tiles |> List.find (fun t -> t.Id = id))
             |> List.sumBy (fun t -> t.Value)
 
-        let makeSums tiles =
+        let private makeSums tiles =
             sumsDefinition
             |> List.map (fun (ids, pos) -> {
                 Id = 0
@@ -114,10 +116,10 @@ module HypatianEngine =
                 CenterY = snd pos
             })
 
-        let computeRemaining sums =
+        let private computeRemaining sums =
             sums |> List.sumBy (fun s -> Math.Abs(s.Value - 38))
 
-        let hydrate (model: BoardModel) : State =
+        let private hydrate (model: BoardModel) : State =
             let nextSums = makeSums model.Tiles
 
             {
@@ -126,7 +128,7 @@ module HypatianEngine =
                 Remaining = computeRemaining nextSums
             }
 
-        let collectPoints ids tiles =
+        let private collectPoints ids tiles =
             ids
             |> List.map (fun id -> tiles |> List.find (fun t -> t.Id = id))
             |> List.map (fun t -> (t.CenterX, t.CenterY))
