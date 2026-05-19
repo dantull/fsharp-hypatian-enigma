@@ -40,19 +40,7 @@ module HypatianEngine =
 
         let hexRow count q r = [ for i in 0 .. count - 1 -> axialCoord (q + i) r ]
 
-        let centers =
-            List.concat [ hexRow 3 0 0; hexRow 4 -1 1; hexRow 5 -2 2; hexRow 4 -2 3; hexRow 3 -2 4 ]
-
-        let centerHex = centers |> List.item 9
-        let boardCenterOffset = (width / 2 - fst centerHex, height / 2 - snd centerHex)
-
-        let hexCoord q r =
-            let x, y = axialCoord q r
-            (x + fst boardCenterOffset, y + snd boardCenterOffset)
-
-        let shiftedCenters =
-            centers
-            |> List.map (fun (x, y) -> (x + fst boardCenterOffset, y + snd boardCenterOffset))
+        let translate (xShift, yShift) (x, y) = (x + xShift, y + yShift)
 
         let hexPoints x y s = [
             (x, y - s * 10)
@@ -67,14 +55,25 @@ module HypatianEngine =
     module Board =
         open Geometry
 
+        let centers =
+            // actually should be in Board, but we need it to compute the center
+            List.concat [ hexRow 3 0 0; hexRow 4 -1 1; hexRow 5 -2 2; hexRow 4 -2 3; hexRow 3 -2 4 ]
+
+        let centerHex = centers |> List.item 9
+        let boardCenterOffset = (width / 2 - fst centerHex, height / 2 - snd centerHex)
+
         let board =
-            shiftedCenters
+            centers
+            |> List.map (translate boardCenterOffset)
             |> List.mapi (fun i (x, y) -> {
                 Id = i
                 Value = i + 1
                 CenterX = x
                 CenterY = y
             })
+
+        let hexCoord q r =
+            axialCoord q r |> translate boardCenterOffset
 
         let sumsDefinition = [
             // Rows
