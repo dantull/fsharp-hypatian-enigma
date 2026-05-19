@@ -140,6 +140,9 @@ module HypatianEngine =
             )
 
         // State Transitions
+        let selectTile id model =
+            { model with Selected = Some id } |> hydrate
+
         let updateFromSavedTiles (savedTiles: SavedTile list) (model: BoardModel) =
             let savedTileMap =
                 savedTiles |> List.map (fun st -> (st.SavedId, st.SavedValue)) |> Map.ofList
@@ -167,7 +170,12 @@ module HypatianEngine =
                     else t
                 )
 
-            { model with Tiles = newTiles } |> hydrate
+            {
+                model with
+                    Tiles = newTiles
+                    Selected = None
+            }
+            |> hydrate
 
         let shuffleTiles model =
             let rnd = Random()

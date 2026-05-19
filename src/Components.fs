@@ -87,11 +87,8 @@ type Components =
 
         let update msg state =
             match msg, state.Model.Selected with
-            | TileClicked id, Some selectedId -> persistState (Board.swapTiles id selectedId state.Model)
-            | TileClicked id, _ -> {
-                state with
-                    Model = { state.Model with Selected = Some id }
-              }
+            | TileClicked id, Some selectedId -> Board.swapTiles id selectedId state.Model |> persistState
+            | TileClicked id, None -> Board.selectTile id state.Model
 
         let dispatch msg = setState (update msg state)
 
