@@ -154,7 +154,7 @@ module HypatianEngine =
 
             { model with Tiles = newTiles } |> hydrate
 
-        let swapHelper id1 id2 model =
+        let swapTiles id1 id2 model =
             let tiles = model.Tiles
             let tile1 = tiles |> List.find (fun t -> t.Id = id1)
             let tile2 = tiles |> List.find (fun t -> t.Id = id2)
