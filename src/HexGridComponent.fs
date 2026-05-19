@@ -3,12 +3,12 @@ namespace App
 open Browser.Dom
 open Thoth.Json
 open Feliz
-open App.HypatianEngine // Open your new module!
+open App.HypatianEngine
 
-type Components =
+module HexGridComponent =
 
     [<ReactComponent>]
-    static member HexGrid() =
+    let HexGrid () =
         // Bring in your sizing constants from Geometry
         let s = Geometry.s
         let width = Geometry.width

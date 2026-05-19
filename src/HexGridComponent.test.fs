@@ -8,7 +8,7 @@ Vitest.describe (
         Vitest.test (
             "renders the hex grid svg",
             fun () -> promise {
-                let result = RTL.render (App.Components.HexGrid())
+                let result = RTL.render (App.HexGridComponent.HexGrid())
                 let container = result.container
                 let svg = container.querySelector ("svg")
 
