@@ -13,9 +13,13 @@ type Tile = {
 type SavedTile = { SavedId: int; SavedValue: int }
 type Msg = TileClicked of int
 
-type State = {
+type BoardModel = {
     Tiles: Tile list
     Selected: int option
+}
+
+type State = {
+    Model: BoardModel
     Sums: Tile list
     Remaining: int
 }
@@ -114,6 +118,15 @@ module HypatianEngine =
             sums
             |> List.sumBy (fun s -> if s.Value >= 38 then s.Value - 38 else 38 - s.Value)
 
+        let hydrate (model: BoardModel) : State =
+            let nextSums = makeSums model.Tiles
+
+            {
+                Model = model
+                Sums = nextSums
+                Remaining = computeRemaining nextSums
+            }
+
         let collectPoints ids tiles =
             ids
             |> List.map (fun id -> tiles |> List.find (fun t -> t.Id = id))
@@ -127,29 +140,22 @@ module HypatianEngine =
             )
 
         // State Transitions
-        let updateFromSavedTiles (savedTiles: SavedTile list) (state: State) =
+        let updateFromSavedTiles (savedTiles: SavedTile list) (model: BoardModel) =
             let savedTileMap =
                 savedTiles |> List.map (fun st -> (st.SavedId, st.SavedValue)) |> Map.ofList
 
             let newTiles =
-                state.Tiles
+                model.Tiles
                 |> List.map (fun t ->
                     match Map.tryFind t.Id savedTileMap with
                     | Some savedValue -> { t with Value = savedValue }
                     | None -> t
                 )
 
-            let nextSums = makeSums newTiles
+            { model with Tiles = newTiles } |> hydrate
 
-            {
-                state with
-                    Tiles = newTiles
-                    Sums = nextSums
-                    Remaining = computeRemaining nextSums
-            }
-
-        let swapHelper id1 id2 state =
-            let tiles = state.Tiles
+        let swapHelper id1 id2 model =
+            let tiles = model.Tiles
             let tile1 = tiles |> List.find (fun t -> t.Id = id1)
             let tile2 = tiles |> List.find (fun t -> t.Id = id2)
 
@@ -161,36 +167,21 @@ module HypatianEngine =
                     else t
                 )
 
-            let nextSums = makeSums newTiles
+            { model with Tiles = newTiles } |> hydrate
 
-            {
-                state with
-                    Tiles = newTiles
-                    Selected = None
-                    Sums = nextSums
-                    Remaining = computeRemaining nextSums
-            }
-
-        let shuffleTiles state =
+        let shuffleTiles model =
             let rnd = Random()
 
             let shuffledValues =
-                state.Tiles |> List.map (fun t -> t.Value) |> List.sortBy (fun _ -> rnd.Next())
+                model.Tiles |> List.map (fun t -> t.Value) |> List.sortBy (fun _ -> rnd.Next())
 
             let savedTiles =
-                state.Tiles
+                model.Tiles
                 |> List.map (fun t -> t.Id)
                 |> List.zip shuffledValues
                 |> List.map (fun (v, id) -> { SavedId = id; SavedValue = v })
 
-            updateFromSavedTiles savedTiles { state with Selected = None }
+            updateFromSavedTiles savedTiles { model with Selected = None }
 
         let initialState () =
-            let initialSums = makeSums board
-
-            {
-                Tiles = board
-                Selected = None
-                Sums = initialSums
-                Remaining = computeRemaining initialSums
-            }
+            { Tiles = board; Selected = None } |> hydrate

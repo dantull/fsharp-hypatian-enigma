@@ -68,7 +68,7 @@ type Components =
                 | null -> state
                 | json ->
                     match Decode.Auto.fromString<SavedTile list> json with
-                    | Ok tiles -> Board.updateFromSavedTiles tiles state
+                    | Ok tiles -> Board.updateFromSavedTiles tiles state.Model
                     | Error err ->
                         console.error ("Failed to decode saved state:", err)
                         state
@@ -77,7 +77,7 @@ type Components =
         let state, setState = React.useState (maybeUpdate defaultState)
 
         let persistState state =
-            let json = Encode.Auto.toString (0, toSavedTiles state.Tiles)
+            let json = Encode.Auto.toString (0, toSavedTiles state.Model.Tiles)
 
             match tryLocalStorage () with
             | Some storage -> storage.setItem (persistKey, json)
@@ -86,9 +86,12 @@ type Components =
             state
 
         let update msg state =
-            match msg, state.Selected with
-            | TileClicked id, Some selectedId -> persistState (Board.swapHelper id selectedId state)
-            | TileClicked id, _ -> { state with Selected = Some id }
+            match msg, state.Model.Selected with
+            | TileClicked id, Some selectedId -> persistState (Board.swapHelper id selectedId state.Model)
+            | TileClicked id, _ -> {
+                state with
+                    Model = { state.Model with Selected = Some id }
+              }
 
         let dispatch msg = setState (update msg state)
 
@@ -163,8 +166,8 @@ type Components =
                                             svg.height height
                                             svg.children (
                                                 List.concat [
-                                                    guideLines state.Tiles
-                                                    List.map (fun t -> HexAt t state.Selected) state.Tiles
+                                                    guideLines state.Model.Tiles
+                                                    List.map (fun t -> HexAt t state.Model.Selected) state.Model.Tiles
                                                     List.map SumAt state.Sums
                                                 ]
                                             )
@@ -189,7 +192,7 @@ type Components =
                                             "Shuffle"
                                             (fun _ ->
                                                 window.localStorage.removeItem persistKey
-                                                setState (Board.shuffleTiles defaultState)
+                                                setState (Board.shuffleTiles defaultState.Model)
                                             )
                                     ]
                                 ]
