@@ -54,21 +54,14 @@ module HypatianEngine =
             centers
             |> List.map (fun (x, y) -> (x + fst boardCenterOffset, y + snd boardCenterOffset))
 
-        let HexPointsString x y s =
-            sprintf
-                "%d,%d %d,%d %d,%d %d,%d %d,%d %d,%d"
-                x
-                (y - s * 10)
-                (x + s * 7)
-                (y - s * 6)
-                (x + s * 7)
-                (y + s * 2)
-                x
-                (y + s * 6)
-                (x - s * 7)
-                (y + s * 2)
-                (x - s * 7)
-                (y - s * 6)
+        let hexPoints x y s = [
+            (x, y - s * 10)
+            (x + s * 7, y - s * 6)
+            (x + s * 7, y + s * 2)
+            (x, y + s * 6)
+            (x - s * 7, y + s * 2)
+            (x - s * 7, y - s * 6)
+        ]
 
     // 2. Game Board rules and state modifiers
     module Board =

@@ -48,6 +48,9 @@ type Components =
                 ]
             )
 
+        let toPointsString (points: (int * int) list) =
+            points |> List.map (fun (x, y) -> sprintf "%d,%d" x y) |> String.concat " "
+
         let persistKey = "hypatian-enigma-state"
 
         let tryLocalStorage () =
@@ -107,7 +110,7 @@ type Components =
                 svg.onClick (fun _ -> dispatch (TileClicked t.Id))
                 svg.children [
                     Svg.polygon [
-                        svg.points (Geometry.HexPointsString t.CenterX t.CenterY s)
+                        svg.points ((Geometry.hexPoints t.CenterX t.CenterY s) |> toPointsString)
                         svg.fill (if isSelected then "#88cfff" else "#88c0d0")
                         svg.stroke "#2e3440"
                         svg.fillOpacity 0.6
