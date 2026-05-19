@@ -4,6 +4,7 @@
     </PropertyGroup>
     <ItemGroup>
         <None Include="index.html" />
+        <Compile Include="Domain.fs" />
         <Compile Include="Components.fs" />
         <Compile Include="Components.test.fs" />
         <Compile Include="Main.fs" />
