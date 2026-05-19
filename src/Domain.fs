@@ -115,8 +115,7 @@ module HypatianEngine =
             })
 
         let computeRemaining sums =
-            sums
-            |> List.sumBy (fun s -> if s.Value >= 38 then s.Value - 38 else 38 - s.Value)
+            sums |> List.sumBy (fun s -> Math.Abs(s.Value - 38))
 
         let hydrate (model: BoardModel) : State =
             let nextSums = makeSums model.Tiles
